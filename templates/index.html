@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hate Speech Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h2>🚀 Hate Speech Detection</h2>
+        <p>Enter your text:</p>
+        <textarea id="userInput" rows="4" placeholder="Type your text here..."></textarea>
+        <button id="analyzeBtn" onclick="analyzeText()">Analyze</button>
+
+        <div id="resultBox" class="result-box">
+            <p><strong>Prediction:</strong> <span id="predictionLabel">Waiting...</span></p>
+            <p><strong>Input Text:</strong> <span id="inputText">None</span></p>
+        </div>
+    </div>
+
+    <script>
+        function analyzeText() {
+            let userInput = document.getElementById("userInput").value.trim();
+
+            if (userInput === "") {
+                alert("Please enter some text!");
+                return;
+            }
+
+            fetch('/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let predictionBox = document.getElementById("resultBox");
+                let predictionLabel = document.getElementById("predictionLabel");
+
+                document.getElementById("inputText").innerText = userInput;
+
+                if (data.prediction === 'Hate Speech') {
+                    predictionLabel.innerHTML = `<span class="hate">🔴 Hate Speech</span>`;
+                    predictionBox.classList.add("hate-box");
+                    predictionBox.classList.remove("not-hate-box");
+                } else {
+                    predictionLabel.innerHTML = `<span class="not-hate">🟢 Not Hate Speech</span>`;
+                    predictionBox.classList.add("not-hate-box");
+                    predictionBox.classList.remove("hate-box");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>
